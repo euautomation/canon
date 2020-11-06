@@ -10,7 +10,8 @@
     ],
     "license": "BSD-3-Clause",
     "require": {
-         "ext-mbstring": "*"
+        "php": ">=7.3.0",
+        "ext-mbstring": "*"
     },
     "require-dev": {
         "mockery/mockery": "^1.4",
