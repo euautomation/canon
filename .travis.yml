@@ -4,7 +4,8 @@ php:
   - 7.3
   - 7.4
 
-sudo: false
+dist: xenial
+os: linux
 
 install: travis_retry composer install --no-interaction --prefer-source
 
