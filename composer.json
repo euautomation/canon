@@ -1,0 +1,22 @@
+{
+    "name": "euautomation/canon",
+    "description": "A WHERE matching thing",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Rob Wells",
+            "email": "rob.wells@euautomation.com"
+        }
+    ],
+    "license": "BSD-3-Clause",
+    "require": {
+        "mockery/mockery": "^1.4",
+         "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    },
+    "autoload": {
+        "psr-4": {"EUAutomation\\Canon\\": "src/"}
+    }
+}
