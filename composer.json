@@ -10,10 +10,10 @@
     ],
     "license": "BSD-3-Clause",
     "require": {
-        "mockery/mockery": "^1.4",
          "ext-mbstring": "*"
     },
     "require-dev": {
+        "mockery/mockery": "^1.4",
         "phpunit/phpunit": "^9"
     },
     "autoload": {
