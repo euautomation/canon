@@ -318,6 +318,22 @@ class ProcessorTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($expressions->evaluate($this->makeItem(['foo' => 2, 'bar' => 2, 'baz' => 10 ])));
     }
 
+    public function testLikeAny() {
+        $expressions = $this->processor->process('foo LIKE ANY ("bar%", "baz%")');
+
+        $this->assertTrue($expressions->evaluate($this->makeItem(['foo' => "bart" ])));
+        $this->assertTrue($expressions->evaluate($this->makeItem(['foo' => "bazt" ])));
+        $this->assertFalse($expressions->evaluate($this->makeItem(['foo' => "bat" ])));
+    }
+
+    public function testNotLikeAny() {
+        $expressions = $this->processor->process('foo NOT LIKE ANY ("bar%", "baz%")');
+
+        $this->assertFalse($expressions->evaluate($this->makeItem(['foo' => "bart" ])));
+        $this->assertFalse($expressions->evaluate($this->makeItem(['foo' => "bazt" ])));
+        $this->assertTrue($expressions->evaluate($this->makeItem(['foo' => "bat" ])));
+    }
+
     private function makeItem($attributes = []) {
         return $attributes;
     }

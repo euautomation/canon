@@ -27,6 +27,7 @@ class ExpressionType
     const TABLE_EXPRESSION = 'table_expression';
     const SUBQUERY = 'subquery';
     const IN_LIST = 'in-list';
+    const ARRAY = 'array';
     const OPERATOR = 'operator';
     const SIGN = 'sign';
     const RECORD = 'record';

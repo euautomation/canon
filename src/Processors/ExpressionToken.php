@@ -222,6 +222,14 @@ class ExpressionToken
     /**
      * @return bool
      */
+    public function isArray()
+    {
+        return $this->tokenType === ExpressionType::ARRAY;
+    }
+
+    /**
+     * @return bool
+     */
     public function isFunction()
     {
         return $this->tokenType === ExpressionType::SIMPLE_FUNCTION;

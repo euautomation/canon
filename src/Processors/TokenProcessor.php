@@ -56,7 +56,7 @@ class TokenProcessor
             if ($curr->isEnclosedWithinParenthesis()) {
                 /* is it an in-list? */
                 $localTokenList = $this->splitSQLIntoTokens($this->removeParenthesisFromStart($curr->getTrim()));
-                if ($prev->getUpper() === 'IN') {
+                if (in_array($prev->getUpper(), [ 'ANY', 'IN' ])) {
                     foreach ($localTokenList as $k => $v) {
                         $tmpToken = new ExpressionToken($k, $v);
                         if ($tmpToken->isCommaToken()) {
@@ -65,7 +65,11 @@ class TokenProcessor
                     }
                     $localTokenList = array_values($localTokenList);
                     $curr->setSubTree($this->processTokens($localTokenList));
-                    $curr->setTokenType(ExpressionType::IN_LIST);
+                    if($prev->getUpper() === 'IN') {
+                        $curr->setTokenType(ExpressionType::IN_LIST);
+                    } else {
+                        $curr->setTokenType(ExpressionType::ARRAY);
+                    }
                 } elseif ($prev->isColumnReference() || $prev->isFunction() || $prev->isAggregateFunction()
                     || $prev->isCustomFunction()
                 ) {
@@ -242,6 +246,7 @@ class TokenProcessor
                     case 'SOUNDS':
                     case 'XOR':
                     case 'IN':
+                    case 'ANY':
                         $curr->setSubTree(false);
                         $curr->setTokenType(ExpressionType::OPERATOR);
                         break;

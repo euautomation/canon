@@ -15,6 +15,7 @@ $expressions->evaluate([ "foo" => "bar" ]); // true
 
 - Basic Operators (=, !=, >, >=, <, <=) `foo > 9000`
 - LIKE Operator `foo LIKE "shoes%"`
+- LIKE ANY Operator `foo LIKE ANY ("shoes%", "socks%")`
 - IN Operator `foo IN (1, 2)`
 - Nested Columns Refs `foo.bar = 'baz'`
 - Brackets `foo = 2 AND (bar = 3 OR baz < 10)`

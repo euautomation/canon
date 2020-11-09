@@ -12,6 +12,7 @@ use EUAutomation\Canon\Expression\InExpression;
 use EUAutomation\Canon\Expression\IsNullExpression;
 use EUAutomation\Canon\Expression\LessThanExpression;
 use EUAutomation\Canon\Expression\LessThanOrEqualExpression;
+use EUAutomation\Canon\Expression\LikeAnyExpression;
 use EUAutomation\Canon\Expression\LikeExpression;
 use EUAutomation\Canon\Expression\NotEqualsExpression;
 use EUAutomation\Canon\Expression\NotExpression;
@@ -85,7 +86,7 @@ class ExpressionProcessor
             } elseif (
                 $i + 2 < $count &&
                 $this->canBeValue($tokens[$i]) &&
-                $tokens[$i + 1]->isOperator() == 'operator' &&
+                $tokens[$i + 1]->isOperator() &&
                 $tokens[$i + 1]->getUpper() == 'LIKE' &&
                 $tokens[$i + 2]->isString()
             ) {
@@ -94,7 +95,7 @@ class ExpressionProcessor
             } elseif (
                 $i + 2 < $count &&
                 $this->canBeValue($tokens[$i]) &&
-                $tokens[$i + 1]->isOperator() == 'operator' &&
+                $tokens[$i + 1]->isOperator() &&
                 $tokens[$i + 1]->getUpper() == 'IN' &&
                 $tokens[$i + 2]->isInList()
             ) {
@@ -103,9 +104,9 @@ class ExpressionProcessor
             } elseif (
                 $i + 3 < $count &&
                 $this->canBeValue($tokens[$i]) &&
-                $tokens[$i + 1]->isOperator() == 'operator' &&
+                $tokens[$i + 1]->isOperator() &&
                 $tokens[$i + 1]->getUpper() == 'NOT' &&
-                $tokens[$i + 2]->isOperator() == 'operator' &&
+                $tokens[$i + 2]->isOperator() &&
                 $tokens[$i + 2]->getUpper() == 'LIKE' &&
                 $tokens[$i + 3]->isString()
             ) {
@@ -114,9 +115,9 @@ class ExpressionProcessor
             } elseif (
                 $i + 3 < $count &&
                 $this->canBeValue($tokens[$i]) &&
-                $tokens[$i + 1]->isOperator() == 'operator' &&
+                $tokens[$i + 1]->isOperator() &&
                 $tokens[$i + 1]->getUpper() == 'NOT' &&
-                $tokens[$i + 2]->isOperator() == 'operator' &&
+                $tokens[$i + 2]->isOperator() &&
                 $tokens[$i + 2]->getUpper() == 'IN' &&
                 $tokens[$i + 3]->isInList()
             ) {
@@ -125,9 +126,9 @@ class ExpressionProcessor
             } elseif (
                 $i + 3 < $count &&
                 $this->canBeValue($tokens[$i]) &&
-                $tokens[$i + 1]->isOperator() == 'operator' &&
+                $tokens[$i + 1]->isOperator() &&
                 $tokens[$i + 1]->getUpper() == 'IS' &&
-                $tokens[$i + 2]->isOperator() == 'operator' &&
+                $tokens[$i + 2]->isOperator() &&
                 $tokens[$i + 2]->getUpper() == 'NOT' &&
                 $tokens[$i + 3]->isConstant() &&
                 $tokens[$i + 3]->getUpper() == 'NULL'
@@ -137,13 +138,37 @@ class ExpressionProcessor
             } elseif (
                 $i + 2 < $count &&
                 $this->canBeValue($tokens[$i]) &&
-                $tokens[$i + 1]->isOperator() == 'operator' &&
+                $tokens[$i + 1]->isOperator()  &&
                 $tokens[$i + 1]->getUpper() == 'IS' &&
                 $tokens[$i + 2]->isConstant() &&
                 $tokens[$i + 2]->getUpper() == 'NULL'
             ) {
                 $collection->push($prev = $this->handleIsNull($tokens[$i]));
                 $i += 2;
+            } elseif (
+                $i + 3 < $count &&
+                $this->canBeValue($tokens[$i]) &&
+                $tokens[$i + 1]->isOperator()  &&
+                $tokens[$i + 1]->getUpper() == 'LIKE' &&
+                $tokens[$i + 2]->isOperator() &&
+                $tokens[$i + 2]->getUpper() == 'ANY' &&
+                $tokens[$i + 3]->isArray()
+            ) {
+                $collection->push($prev = $this->handleLikeAny($tokens[$i], $tokens[$i + 3]));
+                $i += 3;
+            } elseif (
+                $i + 4 < $count &&
+                $this->canBeValue($tokens[$i]) &&
+                $tokens[$i + 1]->isOperator()  &&
+                $tokens[$i + 1]->getUpper() == 'NOT' &&
+                $tokens[$i + 2]->isOperator()  &&
+                $tokens[$i + 2]->getUpper() == 'LIKE' &&
+                $tokens[$i + 3]->isOperator() &&
+                $tokens[$i + 3]->getUpper() == 'ANY' &&
+                $tokens[$i + 4]->isArray()
+            ) {
+                $collection->push($prev = $this->handleNot($this->handleLikeAny($tokens[$i], $tokens[$i + 4])));
+                $i += 4;
             } else {
                 throw new SyntaxErrorException();
             }
@@ -205,6 +230,18 @@ class ExpressionProcessor
     protected function handleLike($left, $right)
     {
         return new LikeExpression($this->handleValue($left), $this->cleanString($right->getToken()));
+    }
+
+    /**
+     * @param ExpressionToken $left
+     * @param ExpressionToken $right
+     * @return LikeAnyExpression
+     */
+    protected function handleLikeAny($left, $right)
+    {
+        return new LikeAnyExpression($this->handleValue($left), array_map(function ($token) {
+            return $this->cleanString($token->getToken());
+        }, $right->getSubTree()));
     }
 
     /**
